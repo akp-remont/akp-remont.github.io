@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#F4F3EF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0D0D0E" media="(prefers-color-scheme: dark)">
+  <title>Заявка на ремонт</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23FFD100'/%3E%3Cpath d='M38.2 22.7a2 2 0 0 0 0 2.8l3.3 3.3a2 2 0 0 0 2.8 0l6.4-6.4a12 12 0 0 1-15.9 15.9L22.1 51a4.2 4.2 0 0 1-6-6l12.7-12.7a12 12 0 0 1 15.9-15.9z' fill='none' stroke='%23111' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400..800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F4F3EF;
+      --surface: #FFFFFF;
+      --field: #F4F3EF;
+      --seg-on: #FFFFFF;
+      --text: #111111;
+      --muted: #6B6A66;
+      --line: #E9E7E1;
+      --line-strong: #D3D0C7;
+      --ink: #111111;
+      --accent: #FFD100;        /* жёлтый Bardahl */
+      --accent-press: #F2BE00;
+      --accent-glow: rgba(255, 209, 0, .40);
+      --on-accent: #111111;
+      --danger: #C4271B;
+      --danger-soft: #FDECEB;
+      --u0: #2EB67D; --u1: #E8A200; --u2: #E5484D;   /* цвета срочности */
+      --shadow: 0 1px 2px rgba(17,17,17,.04), 0 10px 30px -14px rgba(17,17,17,.14);
+      --bar-shadow: 0 18px 50px -14px rgba(17,17,17,.28);
+      --r-lg: 24px; --r-md: 18px; --r-sm: 14px;
+      --ease: cubic-bezier(.2, .8, .2, 1);
+      --spring: cubic-bezier(.34, 1.56, .64, 1);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0D0D0E;
+        --surface: #18181A;
+        --field: #222225;
+        --seg-on: #34343A;
+        --text: #F3F3F1;
+        --muted: #9C9B97;
+        --line: #2A2A2D;
+        --line-strong: #3C3C40;
+        --ink: #F3F3F1;
+        --danger: #FF7066;
+        --danger-soft: rgba(255, 112, 102, .12);
+        --accent-glow: rgba(255, 209, 0, .22);
+        --shadow: 0 1px 0 rgba(255,255,255,.03) inset, 0 14px 36px -18px rgba(0,0,0,.9);
+        --bar-shadow: 0 18px 50px -12px rgba(0,0,0,.9);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font: 16px/1.45 "Onest", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button { font: inherit; color: inherit; cursor: pointer; -webkit-user-select: none; user-select: none; }
+    button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+    svg.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+    .wrap { max-width: 580px; margin: 0 auto; padding: 24px 16px 0; }
+
+    /* ---------- Шапка ---------- */
+    .head { display: flex; align-items: center; gap: 14px; margin: 4px 4px 20px; }
+    .logo {
+      width: 52px; height: 52px; border-radius: 16px; flex: none;
+      background: var(--accent); color: var(--on-accent);
+      display: grid; place-items: center;
+      box-shadow: 0 10px 24px -10px var(--accent-glow);
+    }
+    .logo svg.i { width: 26px; height: 26px; }
+    h1 { font-size: 26px; line-height: 1.15; font-weight: 800; letter-spacing: -.02em; margin: 0; }
+    .lead { color: var(--muted); margin: 2px 0 0; font-size: 15px; }
+
+    /* ---------- Карточки-шаги ---------- */
+    .card {
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--r-lg); padding: 18px 16px 4px; margin-bottom: 12px;
+      box-shadow: var(--shadow);
+    }
+    .card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .card-title { font-size: 17px; font-weight: 700; letter-spacing: -.01em; margin: 0; }
+    .step {
+      width: 26px; height: 26px; border-radius: 50%; flex: none;
+      border: 1.5px solid var(--line-strong); color: var(--muted);
+      display: grid; place-items: center; font-size: 13px; font-weight: 700;
+      transition: background .3s var(--ease), border-color .3s var(--ease), color .3s var(--ease);
+    }
+    .step svg.i { width: 14px; height: 14px; stroke-width: 3; display: none; }
+    .step[data-done="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+    .step[data-done="true"] .n { display: none; }
+    .step[data-done="true"] svg.i { display: block; animation: pop .35s var(--spring); }
+
+    .field { display: block; margin-bottom: 18px; }
+    .label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+    .req { color: var(--danger); }
+    .opt { font-weight: 400; color: var(--muted); }
+
+    .input, textarea {
+      width: 100%; font: inherit; font-size: 16px; color: var(--text);
+      background: var(--field); border: 1.5px solid transparent; border-radius: var(--r-sm);
+      padding: 13px 15px; min-height: 52px; outline: none;
+      -webkit-appearance: none; appearance: none;
+      transition: border-color .2s var(--ease), box-shadow .2s var(--ease), background .2s var(--ease);
+    }
+    textarea { resize: none; min-height: 104px; max-height: 320px; field-sizing: content; display: block; }
+    .input::placeholder, textarea::placeholder { color: var(--muted); opacity: .8; }
+    .input:hover, textarea:hover { border-color: var(--line-strong); }
+    .input:focus, textarea:focus {
+      background: var(--surface); border-color: var(--ink);
+      box-shadow: 0 0 0 4px var(--accent-glow);
+    }
+    .invalid, .invalid:hover { border-color: var(--danger) !important; background: var(--danger-soft) !important; }
+    .counter { text-align: right; font-size: 12px; color: var(--muted); margin-top: 6px; font-variant-numeric: tabular-nums; }
+
+    /* ---------- Плитки устройств ---------- */
+    .devices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .devices .device:last-child:nth-child(odd) { grid-column: 1 / -1; }
+    .device {
+      position: relative; min-height: 112px; padding: 14px 10px;
+      border-radius: var(--r-md); border: 1.5px solid transparent; background: var(--field);
+      font-size: 15px; font-weight: 600;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+      transition: transform .35s var(--spring), background .25s var(--ease), border-color .25s var(--ease), box-shadow .25s var(--ease);
+    }
+    .tile-ico {
+      width: 48px; height: 48px; border-radius: 14px; background: var(--surface);
+      display: grid; place-items: center; font-size: 26px; line-height: 1;
+      transition: background .25s var(--ease);
+    }
+    .tile-ico svg.i { width: 26px; height: 26px; stroke-width: 1.8; }
+    .badge {
+      position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%;
+      background: #111; color: var(--accent); display: grid; place-items: center;
+      transform: scale(0); transition: transform .35s var(--spring);
+    }
+    .badge svg.i { width: 14px; height: 14px; stroke-width: 3; }
+    .device[aria-pressed="true"] {
+      background: var(--accent); color: var(--on-accent); font-weight: 700;
+      box-shadow: 0 12px 26px -12px var(--accent-glow);
+    }
+    .device[aria-pressed="true"] .tile-ico { background: rgba(255, 255, 255, .6); }
+    .device[aria-pressed="true"] .badge { transform: scale(1); }
+    .devices.invalid { background: none !important; }
+    .devices.invalid .device { border-color: var(--danger); }
+
+    /* ---------- Чипы ---------- */
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      min-height: 44px; padding: 10px 16px; border-radius: 999px;
+      border: 1.5px solid transparent; background: var(--field);
+      font-size: 15px; text-align: left;
+      display: inline-flex; align-items: center;
+      transition: transform .35s var(--spring), background .2s var(--ease), border-color .2s var(--ease);
+    }
+    .pill .ck { width: 0; height: 16px; opacity: 0; margin-right: 0; stroke-width: 3;
+      transition: width .25s var(--ease), opacity .2s var(--ease), margin .25s var(--ease); }
+    .pill[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); font-weight: 700; }
+    .pill[aria-pressed="true"] .ck { width: 16px; opacity: 1; margin-right: 6px; }
+    .pills.invalid { background: none !important; }
+    .pills.invalid .pill { border-color: var(--danger); }
+
+    /* ---------- Срочность: сегментированный переключатель ---------- */
+    .segmented {
+      display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px;
+      background: var(--field); padding: 4px; border-radius: var(--r-md);
+    }
+    .segmented button {
+      min-height: 56px; padding: 8px 6px; border: 0; border-radius: var(--r-sm); background: transparent;
+      font-size: 14px; font-weight: 600; line-height: 1.15;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      color: var(--muted);
+      transition: background .25s var(--ease), color .25s var(--ease), box-shadow .25s var(--ease), transform .35s var(--spring);
+    }
+    .segmented button[aria-pressed="true"] {
+      background: var(--seg-on); color: var(--text);
+      box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 6px 16px -8px rgba(0,0,0,.25);
+    }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
+
+    @media (hover: hover) {
+      .device:hover:not([aria-pressed="true"]), .pill:hover:not([aria-pressed="true"]) { border-color: var(--line-strong); }
+      .segmented button:hover:not([aria-pressed="true"]) { color: var(--text); }
+    }
+    .device:active, .pill:active, .segmented button:active, .submit:active, .secondary:active { transform: scale(.96); }
+
+    .two { display: flex; gap: 10px; }
+    .two > * { flex: 1; min-width: 0; }
+    @media (max-width: 420px) { .two { display: block; } }
+
+    .ghost {
+      border: 1.5px dashed var(--line-strong); border-radius: var(--r-lg);
+      padding: 22px 16px; margin-bottom: 12px; text-align: center; color: var(--muted); font-size: 15px;
+    }
+
+    .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+
+    /* ---------- Плавающая панель ---------- */
+    .footer {
+      position: sticky; bottom: 0; z-index: 5;
+      padding: 10px 0 calc(12px + env(safe-area-inset-bottom));
+    }
+    .bar {
+      background: var(--surface);
+      background: color-mix(in srgb, var(--surface) 76%, transparent);
+      -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6);
+      border: 1px solid var(--line); border-radius: var(--r-lg);
+      padding: 10px; box-shadow: var(--bar-shadow);
+    }
+    .bar-top { display: flex; align-items: center; gap: 10px; padding: 2px 6px 10px; min-width: 0; }
+    .segs { display: flex; gap: 4px; flex: none; }
+    .segs i { width: 18px; height: 5px; border-radius: 3px; background: var(--line-strong); transition: background .3s var(--ease); }
+    .segs i[data-on="true"] { background: var(--accent); }
+    .summary { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .bar.ready .summary { color: var(--text); font-weight: 600; }
+
+    .error {
+      display: flex; gap: 8px; align-items: flex-start;
+      background: var(--danger-soft); color: var(--danger);
+      border-radius: var(--r-sm); padding: 11px 12px; margin-bottom: 10px; font-weight: 600; font-size: 14px;
+      animation: up .3s var(--ease);
+    }
+    .error svg.i { width: 18px; height: 18px; margin-top: 1px; }
+
+    .submit, .secondary {
+      width: 100%; min-height: 56px; border: 0; border-radius: var(--r-md);
+      font-size: 17px; font-weight: 700; letter-spacing: -.01em;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: transform .35s var(--spring), background .2s var(--ease), box-shadow .2s var(--ease);
+    }
+    .submit { background: var(--accent); color: var(--on-accent); box-shadow: 0 10px 24px -12px var(--accent-glow); }
+    .submit svg.i { transition: transform .3s var(--ease); }
+    .submit:hover svg.i { transform: translateX(3px); }
+    .submit:active { background: var(--accent-press); }
+    .submit:disabled { opacity: .7; cursor: default; transform: none; }
+    .secondary { background: var(--field); color: var(--text); }
+    .spinner {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2.5px solid currentColor; border-right-color: transparent;
+      animation: spin .7s linear infinite;
+    }
+
+    /* ---------- Экран «Принято» ---------- */
+    .done { padding: 40px 0 32px; }
+    .done .card { text-align: center; padding: 32px 20px 20px; }
+    .done-check { width: 96px; height: 96px; display: block; margin: 0 auto 18px; }
+    .done-check circle { fill: var(--accent); transform-origin: center; animation: pop .5s var(--spring) both; }
+    .done-check path {
+      fill: none; stroke: #111; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round;
+      stroke-dasharray: 60; stroke-dashoffset: 60; animation: draw .45s .3s var(--ease) forwards;
+    }
+    .done h2 { font-size: 26px; font-weight: 800; letter-spacing: -.02em; margin: 0 0 6px; }
+    .done p { color: var(--muted); margin: 0 0 22px; }
+    .ticket {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: var(--field); border-radius: var(--r-md); padding: 12px 12px 12px 18px; margin-bottom: 20px; text-align: left;
+    }
+    .ticket-label { display: block; font-size: 12px; color: var(--muted); }
+    .ticket-num { display: block; font-size: 28px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .copy {
+      min-height: 44px; padding: 0 14px; border: 1.5px solid var(--line-strong); border-radius: 12px; background: var(--surface);
+      font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .copy svg.i { width: 16px; height: 16px; }
+
+    /* ---------- Анимации ---------- */
+    @keyframes up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes shake { 0%, 100% { transform: none; } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+    .head, .card, .ghost { animation: up .5s var(--ease) both; animation-delay: calc(var(--i, 0) * 70ms); }
+    .shake { animation: shake .4s var(--ease); }
+    ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .3s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important; scroll-behavior: auto !important;
+      }
+    }
+
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section id="formView">
+      <header class="head">
+        <div class="logo" aria-hidden="true"><svg class="i" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div>
+          <h1>Заявка на ремонт</h1>
+          <p class="lead">Около минуты — и заявка у мастера</p>
+        </div>
+      </header>
+
+      <div class="card" style="--i:1">
+        <div class="card-head">
+          <span class="step" id="step1"><span class="n">1</span><svg class="i" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <label class="card-title" for="name">Кто заявляет <span class="req">*</span></label>
+        </div>
+        <div class="field">
+          <input id="name" class="input" type="text" autocomplete="name" maxlength="100" placeholder="Имя и фамилия">
+        </div>
+      </div>
+
+      <div class="card" style="--i:2">
+        <div class="card-head">
+          <span class="step" id="step2"><span class="n">2</span><svg class="i" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <h2 class="card-title" id="devicesLabel">Что сломалось <span class="req">*</span></h2>
+        </div>
+        <div class="devices" id="devices" role="group" aria-labelledby="devicesLabel"></div>
+      </div>
+
+      <div id="pick" class="ghost" style="--i:3">Выберите устройство — появятся варианты поломок</div>
+
+      <div id="details" class="card" hidden>
+        <div class="card-head">
+          <span class="step" id="step3"><span class="n">3</span><svg class="i" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <h2 class="card-title">Подробности</h2>
+        </div>
+
+        <div class="field">
+          <span class="label" id="problemsLabel">Что случилось <span class="req">*</span> <span class="opt">(можно несколько)</span></span>
+          <div class="pills" id="problems" role="group" aria-labelledby="problemsLabel"></div>
+        </div>
+
+        <div class="field">
+          <label class="label" for="description">Описание <span class="opt" id="descOpt">(необязательно)</span></label>
+          <textarea id="description" maxlength="1000" placeholder="Когда началось, что уже пробовали, текст ошибки"></textarea>
+          <div class="counter" id="counter" hidden></div>
+        </div>
+
+        <div class="field">
+          <label class="label" for="model"><span id="modelLabel">Модель или инвентарный номер</span> <span class="opt">(необязательно)</span></label>
+          <input id="model" class="input" type="text" maxlength="100" autocomplete="off">
+        </div>
+
+        <div class="two">
+          <div class="field">
+            <label class="label" for="location">Где устройство <span class="opt">(необяз.)</span></label>
+            <input id="location" class="input" type="text" maxlength="100" placeholder="Кабинет, склад">
+          </div>
+          <div class="field">
+            <label class="label" for="phone">Телефон для связи <span class="opt">(необяз.)</span></label>
+            <input id="phone" class="input" type="tel" maxlength="30" autocomplete="tel" placeholder="+380">
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="label" id="urgencyLabel">Насколько срочно</span>
+          <div class="segmented" id="urgency" role="group" aria-labelledby="urgencyLabel"></div>
+        </div>
+
+        <!-- Ловушка для ботов: человек это поле не видит -->
+        <div class="hp" aria-hidden="true">
+          <label for="website">Не заполняйте</label>
+          <input id="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="bar" id="bar">
+          <div class="error" id="error" role="alert" hidden></div>
+          <div class="bar-top">
+            <div class="segs" aria-hidden="true"><i id="seg1"></i><i id="seg2"></i><i id="seg3"></i></div>
+            <span class="summary" id="summary" aria-live="polite"></span>
+          </div>
+          <button type="button" class="submit" id="submit"></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="doneView" class="done" hidden>
+      <div class="card">
+        <svg class="done-check" viewBox="0 0 88 88" aria-hidden="true"><circle cx="44" cy="44" r="40"/><path d="M27 45l11 11 22-24"/></svg>
+        <h2>Заявка принята</h2>
+        <p>Мастер свяжется с вами, когда возьмёт её в работу.</p>
+        <div class="ticket">
+          <div>
+            <span class="ticket-label">Номер заявки</span>
+            <span class="ticket-num">№&nbsp;<span id="doneNum"></span></span>
+          </div>
+          <button type="button" class="copy" id="copyNum"></button>
+        </div>
+        <button type="button" class="secondary" id="newRequest">Новая заявка</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    /* ======== НАСТРОЙКА: вставьте сюда URL веб-приложения Apps Script (…/exec) ======== */
+    var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzpDz06ZwvlWHfyhac2iXfmG3Td2jW58C30Nga-AUmDiaubGw_Mjj61vI01G29c1MB1JA/exec';
+    /* ================================================================================== */
+
+    var TIMEOUT_MS = 25000;
+
+    // Список по умолчанию — плитки видны сразу. При загрузке форма подтягивает
+    // актуальный список из Code.gs (массив DEVICES) и подменяет его.
+    var CONFIG = {
+      devices: [
+        { key: 'pc', icon: '💻', title: 'Ноутбук / ПК',
+          modelLabel: 'Модель или инвентарный номер', modelHint: 'Например: Lenovo ThinkPad, инв. 0123',
+          problems: ['Не включается', 'Тормозит / зависает', 'Нет интернета', 'Не работает Акцент', 'Не работает программа / 1С',
+                     'Проблема с экраном', 'Клавиатура / мышь', 'Другое'] },
+        { key: 'tablet', icon: '📲', title: 'Планшет',
+          modelLabel: 'Модель или инвентарный номер', modelHint: 'Например: Samsung Tab A8, склад',
+          problems: ['Не включается', 'Не заряжается', 'Разбит экран', 'Тормозит / зависает',
+                     'Нет интернета', 'Не работает приложение Агент', 'Не работает другое приложение', 'Другое'] },
+        { key: 'phone', icon: '📱', title: 'Телефон',
+          modelLabel: 'Модель или инвентарный номер', modelHint: 'Например: Samsung A15',
+          problems: ['Не включается', 'Не заряжается', 'Разбит экран', 'Нет связи',
+                     'Не работает приложение Агент', 'Не работает другое приложение', 'Не слышно собеседника', 'Другое'] },
+        { key: 'printer', icon: '🖨️', title: 'Принтер / МФУ',
+          modelLabel: 'Модель или инвентарный номер', modelHint: 'Например: HP M428, бухгалтерия',
+          problems: ['Не печатает', 'Не сканирует', 'Зажевало бумагу', 'Закончился картридж / тонер',
+                     'Плохое качество печати', 'Не видит компьютер / сеть', 'Ошибка на экране', 'Другое'] },
+        { key: 'sim', icon: '📶', title: 'SIM-карта',
+          modelLabel: 'Номер телефона SIM-карты', modelHint: '+380 …',
+          problems: ['Нет связи', 'Не работает мобильный интернет', 'Выпуск SIM-пары в планшет',
+                     'Заблокирована', 'Потеряна', 'Нужна новая SIM', 'Другое'] }
+      ],
+      urgencies: ['Не срочно', 'Мешает работать', 'Не могу работать']
+    };
+
+    // Линейные иконки (в стиле Lucide). Для нового устройства без иконки здесь — берётся эмодзи из Code.gs.
+    var ICONS = {
+      pc: '<path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/>',
+      tablet: '<rect width="16" height="20" x="4" y="2" rx="2"/><path d="M12 18h.01"/>',
+      phone: '<rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/>',
+      printer: '<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/>',
+      sim: '<path d="M14.17 2a2 2 0 0 1 1.42.59l3.82 3.82A2 2 0 0 1 20 7.83V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><rect x="8" y="10" width="8" height="8" rx="1"/><path d="M8 14h8M12 14v4"/>',
+      check: '<path d="M20 6 9 17l-5-5"/>',
+      arrow: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+      alert: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',
+      copy: '<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>'
+    };
+    function svg(name, cls) {
+      return '<svg class="i' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" aria-hidden="true">' + ICONS[name] + '</svg>';
+    }
+
+    var CONFIGURED = /^https:\/\/script\.google\.com\/.+\/exec$/.test(SCRIPT_URL);
+    var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var KEYS = { name: 'repairRequest.name', phone: 'repairRequest.phone' };
+    var device = null;
+    var problems = [];
+    var urgency = CONFIG.urgencies[0];
+    var sending = false;
+    var requestId = newId();
+
+    function $(id) { return document.getElementById(id); }
+
+    function el(tag, attrs, html) {
+      var e = document.createElement(tag);
+      attrs = attrs || {};
+      Object.keys(attrs).forEach(function (k) {
+        if (k === 'class') e.className = attrs[k];
+        else e.setAttribute(k, attrs[k]);
+      });
+      if (html) e.innerHTML = html;
+      return e;
+    }
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function newId() {
+      if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+      return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+    }
+
+    function load(key) { try { return localStorage.getItem(key) || ''; } catch (e) { return ''; } }
+    function save(key, v) { try { localStorage.setItem(key, v); } catch (e) {} }
+
+    function tap() { try { if (navigator.vibrate) navigator.vibrate(8); } catch (e) {} }
+
+    function transition(fn) {
+      if (document.startViewTransition && !REDUCED) document.startViewTransition(fn);
+      else fn();
+    }
+
+    function shake(node) {
+      node.classList.remove('shake');
+      void node.offsetWidth;
+      node.classList.add('shake');
+    }
+
+    function setPressed(container, test) {
+      container.querySelectorAll('button').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(test(b)));
+      });
+    }
+
+    /* ---------- Связь с Apps Script ---------- */
+    function request(options) {
+      var ctrl = window.AbortController ? new AbortController() : null;
+      var timer = ctrl && setTimeout(function () { ctrl.abort(); }, TIMEOUT_MS);
+      if (ctrl) options.signal = ctrl.signal;
+      return fetch(SCRIPT_URL, options)
+        .then(function (res) {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json();
+        })
+        .then(function (data) {
+          if (!data || !data.ok) throw new Error((data && data.error) || 'Неизвестная ошибка');
+          return data;
+        })
+        .finally(function () { if (timer) clearTimeout(timer); });
+    }
+
+    function loadConfig() {
+      if (!CONFIGURED) return;
+      request({ method: 'GET' }).then(function (cfg) {
+        if (!cfg.devices || !cfg.devices.length || !cfg.urgencies || !cfg.urgencies.length) return;
+        if (device) return; // человек уже начал заполнять — не перестраиваем форму под ним
+        CONFIG = { devices: cfg.devices, urgencies: cfg.urgencies };
+        buildDevices();
+        buildUrgency();
+      }).catch(function () { /* остаёмся на списке по умолчанию */ });
+    }
+
+    /* ---------- Устройства ---------- */
+    function buildDevices() {
+      $('devices').innerHTML = '';
+      CONFIG.devices.forEach(function (d) {
+        var ico = ICONS[d.key] ? svg(d.key) : esc(d.icon || '🔧');
+        var b = el('button', { type: 'button', class: 'device', 'aria-pressed': 'false', 'data-key': d.key },
+          '<span class="tile-ico" aria-hidden="true">' + ico + '</span>' +
+          '<span>' + esc(d.title) + '</span>' +
+          '<span class="badge" aria-hidden="true">' + svg('check') + '</span>');
+        b.addEventListener('click', function () { tap(); selectDevice(d); });
+        $('devices').appendChild(b);
+      });
+    }
+
+    function selectDevice(d) {
+      if (device && device.key === d.key) return;
+      var firstPick = !device;
+      device = d;
+      problems = [];
+      setPressed($('devices'), function (b) { return b.getAttribute('data-key') === d.key; });
+      $('devices').classList.remove('invalid');
+
+      var box = $('problems');
+      box.innerHTML = '';
+      box.classList.remove('invalid');
+      d.problems.forEach(function (p) {
+        var b = el('button', { type: 'button', class: 'pill', 'aria-pressed': 'false' }, svg('check', 'ck') + esc(p));
+        b.addEventListener('click', function () { tap(); toggleProblem(p, b); });
+        box.appendChild(b);
+      });
+
+      $('modelLabel').textContent = d.modelLabel;
+      $('model').placeholder = d.modelHint;
+      $('model').value = '';
+      $('pick').hidden = true;
+      $('details').hidden = false;
+      updateDescRequired();
+      clearError();
+      update();
+      if (firstPick && window.matchMedia('(max-width: 600px)').matches) {
+        setTimeout(function () {
+          $('details').scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' });
+        }, 60);
+      }
+    }
+
+    function toggleProblem(p, btn) {
+      var i = problems.indexOf(p);
+      if (i >= 0) problems.splice(i, 1); else problems.push(p);
+      btn.setAttribute('aria-pressed', String(i < 0));
+      $('problems').classList.remove('invalid');
+      updateDescRequired();
+      clearError();
+      update();
+    }
+
+    function otherSelected() { return problems.indexOf('Другое') >= 0; }
+
+    function updateDescRequired() {
+      var on = otherSelected();
+      $('descOpt').className = on ? 'req' : 'opt';
+      $('descOpt').textContent = on ? '*' : '(необязательно)';
+      $('description').required = on;
+    }
+
+    /* ---------- Срочность ---------- */
+    function buildUrgency() {
+      $('urgency').innerHTML = '';
+      CONFIG.urgencies.forEach(function (u, i) {
+        var b = el('button', { type: 'button', 'aria-pressed': 'false', 'data-value': u },
+          '<span class="dot" style="background:var(--u' + Math.min(i, 2) + ')"></span><span>' + esc(u) + '</span>');
+        b.addEventListener('click', function () { tap(); setUrgency(u); });
+        $('urgency').appendChild(b);
+      });
+      setUrgency(CONFIG.urgencies[0]);
+    }
+    function setUrgency(u) {
+      urgency = u;
+      setPressed($('urgency'), function (b) { return b.getAttribute('data-value') === u; });
+      update();
+    }
+
+    /* ---------- Прогресс и сводка в панели ---------- */
+    function update() {
+      var name = $('name').value.trim();
+      var desc = $('description').value.trim();
+      var s1 = !!name;
+      var s2 = !!device;
+      var s3 = s2 && problems.length > 0 && (!otherSelected() || !!desc);
+
+      $('step1').setAttribute('data-done', String(s1));
+      $('step2').setAttribute('data-done', String(s2));
+      $('step3').setAttribute('data-done', String(s3));
+      $('seg1').setAttribute('data-on', String(s1));
+      $('seg2').setAttribute('data-on', String(s2));
+      $('seg3').setAttribute('data-on', String(s3));
+
+      var text;
+      if (!s1) text = 'Укажите, кто заявляет';
+      else if (!s2) text = 'Выберите устройство';
+      else if (!problems.length) text = device.title + ' · отметьте, что случилось';
+      else if (!s3) text = device.title + ' · опишите проблему';
+      else text = device.title + ' · ' + problems[0] + (problems.length > 1 ? ' +' + (problems.length - 1) : '') + ' · ' + urgency;
+      $('summary').textContent = text;
+      $('bar').classList.toggle('ready', s1 && s3);
+    }
+
+    /* ---------- Ошибки ---------- */
+    function showError(msg, target) {
+      $('error').innerHTML = svg('alert') + '<span>' + esc(msg) + '</span>';
+      $('error').hidden = false;
+      if (target) {
+        target.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'center' });
+        shake(target);
+        if (target.focus && /INPUT|TEXTAREA/.test(target.tagName)) target.focus({ preventScroll: true });
+      }
+      try { if (navigator.vibrate) navigator.vibrate([20, 40, 20]); } catch (e) {}
+    }
+    function clearError() { $('error').hidden = true; $('error').textContent = ''; }
+
+    function friendlyError(err) {
+      if (err && err.name === 'AbortError') {
+        return 'Сервер долго не отвечает. Нажмите «Отправить» ещё раз — дубль не создастся.';
+      }
+      var msg = (err && (err.message || String(err))) || '';
+      msg = msg.replace(/^(Error|Exception|Ошибка):\s*/i, '').trim();
+      if (!msg || /network|failed to fetch|load failed|HTTP \d|JSON/i.test(msg)) {
+        return 'Нет связи с сервером. Проверьте интернет и нажмите «Отправить» ещё раз — данные сохранены.';
+      }
+      return msg;
+    }
+
+    /* ---------- Отправка ---------- */
+    function submit() {
+      if (sending) return;
+      clearError();
+
+      var name = $('name').value.trim();
+      if (!name) { $('name').classList.add('invalid'); return showError('Укажите, кто заявляет.', $('name')); }
+      if (!device) { $('devices').classList.add('invalid'); return showError('Выберите устройство.', $('devices')); }
+      if (!problems.length) { $('problems').classList.add('invalid'); return showError('Отметьте, что случилось.', $('problems')); }
+
+      var description = $('description').value.trim();
+      if (otherSelected() && !description) {
+        $('description').classList.add('invalid');
+        return showError('Опишите проблему — вы выбрали «Другое».', $('description'));
+      }
+
+      if (!CONFIGURED) {
+        return showError('Форма ещё не подключена к таблице: в index.html не указан SCRIPT_URL.');
+      }
+
+      var phone = $('phone').value.trim();
+      save(KEYS.name, name);
+      save(KEYS.phone, phone);
+
+      setSending(true);
+      request({
+        method: 'POST',
+        // Строка без заголовков уходит как text/plain — так браузер не делает CORS-предзапрос,
+        // который Apps Script не поддерживает.
+        body: JSON.stringify({
+          requestId: requestId,
+          website: $('website').value,
+          name: name,
+          device: device.key,
+          model: $('model').value.trim(),
+          problems: problems.slice(),
+          description: description,
+          location: $('location').value.trim(),
+          phone: phone,
+          urgency: urgency
+        })
+      }).then(function (res) {
+        setSending(false);
+        tap();
+        transition(function () {
+          $('doneNum').textContent = res.number;
+          setCopyLabel(false);
+          $('formView').hidden = true;
+          $('doneView').hidden = false;
+          window.scrollTo(0, 0);
+        });
+        $('newRequest').focus({ preventScroll: true });
+      }).catch(function (err) {
+        setSending(false);
+        showError(friendlyError(err));
+      });
+    }
+
+    function setSending(on) {
+      sending = on;
+      $('submit').disabled = on;
+      $('submit').innerHTML = on
+        ? '<span class="spinner" aria-hidden="true"></span><span>Отправка…</span>'
+        : '<span>Отправить заявку</span>' + svg('arrow');
+    }
+
+    /* ---------- Экран «Принято» ---------- */
+    function setCopyLabel(copied) {
+      $('copyNum').innerHTML = svg(copied ? 'check' : 'copy') + '<span>' + (copied ? 'Скопировано' : 'Копировать') + '</span>';
+    }
+    function copyNumber() {
+      var text = 'Заявка №' + $('doneNum').textContent;
+      var done = function () { tap(); setCopyLabel(true); setTimeout(function () { setCopyLabel(false); }, 1800); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () {});
+      }
+    }
+
+    /* ---------- Новая заявка ---------- */
+    function resetForm() {
+      transition(function () {
+        device = null;
+        problems = [];
+        requestId = newId();
+        setPressed($('devices'), function () { return false; });
+        $('problems').innerHTML = '';
+        ['model', 'description', 'location'].forEach(function (id) {
+          $(id).value = '';
+          $(id).classList.remove('invalid');
+        });
+        $('description').required = false;
+        $('counter').hidden = true;
+        $('details').hidden = true;
+        $('pick').hidden = false;
+        setUrgency(CONFIG.urgencies[0]);
+        clearError();
+        setSending(false);
+        loadSaved();
+        update();
+        $('doneView').hidden = true;
+        $('formView').hidden = false;
+        window.scrollTo(0, 0);
+      });
+    }
+
+    function loadSaved() {
+      $('name').value = load(KEYS.name);
+      $('phone').value = load(KEYS.phone);
+    }
+
+    /* ---------- Описание: счётчик и автовысота ---------- */
+    var NATIVE_AUTOSIZE = window.CSS && CSS.supports && CSS.supports('field-sizing', 'content');
+    function onDescription() {
+      var t = $('description');
+      var n = t.value.length;
+      $('counter').hidden = n === 0;
+      $('counter').textContent = n + ' / ' + t.maxLength;
+      if (!NATIVE_AUTOSIZE) {
+        t.style.height = 'auto';
+        t.style.height = Math.min(t.scrollHeight + 3, 320) + 'px';
+      }
+    }
+
+    /* ---------- Запуск ---------- */
+    $('submit').addEventListener('click', submit);
+    $('newRequest').addEventListener('click', resetForm);
+    $('copyNum').addEventListener('click', copyNumber);
+    ['name', 'description'].forEach(function (id) {
+      $(id).addEventListener('input', function () { $(id).classList.remove('invalid'); clearError(); update(); });
+    });
+    $('description').addEventListener('input', onDescription);
+
+    loadSaved();
+    buildDevices();
+    buildUrgency();
+    setSending(false);
+    update();
+    loadConfig();
+  </script>
+</body>
+</html>
